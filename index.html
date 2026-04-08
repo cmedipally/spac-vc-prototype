@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPAC Settings – Home Sites Prototype</title>
+<style>
+/* ===== PROTOTYPE NAV ===== */
+:root {
+  --blue: #0078d4;
+  --blue-light: #eff6fc;
+  --blue-mid: #deecf9;
+  --text: #323130;
+  --text-secondary: #605e5c;
+  --border: #edebe9;
+  --bg: #faf9f8;
+  --white: #ffffff;
+  --nav-width: 220px;
+  --topbar-height: 48px;
+  --panel-width: 460px;
+  --green: #107c10;
+  --red: #a4262c;
+  --yellow-bg: #fff4ce;
+  --yellow-border: #f3d04e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: #e5e5e5;
+  min-height: 100vh;
+}
+
+/* ===== PROTOTYPE NAVIGATION BAR ===== */
+#proto-nav {
+  background: #2d2d2d;
+  color: #ccc;
+  padding: 8px 16px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  border-bottom: 2px solid #0078d4;
+}
+#proto-nav span.label {
+  color: #888;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+#proto-nav .sep { color: #555; }
+#proto-nav a {
+  color: #90c8ff;
+  text-decoration: none;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+#proto-nav a:hover { background: #444; color: #fff; }
+#proto-nav a.active { background: #0078d4; color: #fff; }
+
+/* ===== SPAC SHELL ===== */
+#spac-shell {
+  height: calc(100vh - 37px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== TOP BAR ===== */
+#topbar {
+  height: var(--topbar-height);
+  background: #1b1b1b;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+  gap: 10px;
+}
+#topbar .waffle {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+#topbar .waffle svg { fill: #fff; opacity: 0.85; }
+#topbar-title {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  flex: 1;
+}
+#topbar-title span { opacity: 0.55; margin: 0 2px; }
+#topbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#topbar-icons button {
+  width: 32px; height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.8);
+  font-size: 16px;
+  transition: background 0.15s;
+}
+#topbar-icons button:hover { background: rgba(255,255,255,0.1); }
+.avatar-btn {
+  width: 28px !important; height: 28px !important;
+  background: #6264a7 !important;
+  border-radius: 50% !important;
+  font-size: 12px !important;
+  font-weight: 600;
+  color: #fff !important;
+}
+
+/* ===== BODY LAYOUT ===== */
+#body-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== LEFT NAV ===== */
+#left-nav {
+  width: var(--nav-width);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 8px 0 24px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px 8px 16px;
+  font-size: 13.5px;
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: background 0.1s;
+  gap: 6px;
+}
+.nav-item:hover { background: var(--bg); }
+.nav-item.active {
+  background: var(--blue-light);
+  color: var(--blue);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--blue);
+  border-radius: 0 2px 2px 0;
+}
+.nav-item .chevron {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+.nav-item.expanded .chevron { transform: rotate(90deg); }
+
+.nav-sub-item {
+  padding-left: 32px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a19f9d;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 16px 16px 4px;
+}
+
+.pro-badge {
+  display: inline-block;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== MAIN CONTENT ===== */
+#main-content {
+  flex: 1;
+  background: var(--white);
+  overflow-y: auto;
+  position: relative;
+  padding: 32px 40px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+/* ===== SETTINGS TABLE ===== */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.settings-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.settings-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.settings-table tr:hover td { background: var(--bg); }
+.settings-table tr.clickable { cursor: pointer; }
+.settings-table tr.clickable:hover td { background: var(--blue-light); }
+.settings-table tr.row-active td { background: var(--blue-light); }
+
+.settings-group-header td {
+  background: var(--bg);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text);
+  padding: 10px 12px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-group-header:hover td { background: var(--bg) !important; }
+
+.app-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-icon {
+  width: 24px; height: 24px;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.sp-icon { background: #0078d4; color: #fff; font-weight: 700; font-size: 11px; }
+.od-icon { background: #0364b8; color: #fff; font-size: 13px; }
+
+.name-cell a, .name-cell span.link {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+.name-cell a:hover, .name-cell span.link:hover { text-decoration: underline; }
+
+/* ===== RIGHT PANEL ===== */
+#panel-overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: var(--panel-width);
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 16px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+  z-index: 100;
+  overflow: hidden;
+}
+#panel-overlay.open { transform: translateX(0); }
+
+.panel-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.panel-close {
+  width: 28px; height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.panel-close:hover { background: var(--border); color: var(--text); }
+
+.panel-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.panel-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 13.5px;
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  border: 1px solid var(--blue);
+}
+.btn-primary:hover { background: #106ebe; border-color: #106ebe; }
+.btn-secondary {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid #8a8886;
+}
+.btn-secondary:hover { background: var(--bg); }
+.btn-ghost {
+  background: none;
+  color: var(--blue);
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.btn-ghost:hover { background: var(--blue-light); }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== INFO BANNER ===== */
+.info-banner {
+  background: #f3f2f1;
+  border: 1px solid #e1dfdd;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.info-banner .info-icon { color: #605e5c; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.info-banner a { color: var(--blue); }
+
+.proposed-badge {
+  display: inline-block;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ===== PANEL TABLE ===== */
+.panel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.panel-table th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.panel-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.panel-table tr:last-child td { border-bottom: none; }
+.panel-table tr:hover td { background: var(--bg); }
+.panel-table .url-cell {
+  color: var(--blue);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 140px;
+  white-space: nowrap;
+}
+.panel-table .link-cell a { color: var(--blue); text-decoration: none; }
+.panel-table .link-cell a:hover { text-decoration: underline; cursor: pointer; }
+.panel-table .link-cell {
+  color: var(--blue);
+  cursor: pointer;
+  font-weight: 500;
+}
+.panel-table .link-cell:hover { text-decoration: underline; }
+.panel-table .audience-cell {
+  color: var(--blue);
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.panel-table .audience-cell:hover { text-decoration: underline; }
+
+/* ===== ACTION BAR ===== */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.action-bar .action-checkbox { margin-right: 4px; }
+.action-bar .btn-action {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 13px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.action-bar .btn-action:hover { background: var(--blue-light); }
+.action-bar .btn-action.disabled {
+  color: var(--text-secondary);
+  cursor: default;
+}
+.action-bar .btn-action.disabled:hover { background: none; }
+.action-bar .separator { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+.empty-state .empty-illustration {
+  width: 80px; height: 80px;
+  margin: 0 auto 16px;
+  background: var(--bg);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  border: 2px solid var(--border);
+}
+.empty-state h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.empty-state p { font-size: 13px; margin-bottom: 20px; }
+
+/* ===== LEARN MORE LINK ===== */
+.learn-more {
+  color: var(--blue);
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.learn-more:hover { text-decoration: underline; }
+
+/* ===== DESCRIPTION TEXT ===== */
+.panel-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.note-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ===== FULL SCREEN MODAL ===== */
+#modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-sm {
+  width: 560px;
+}
+.modal-lg {
+  width: 900px;
+  min-height: 500px;
+}
+
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.modal-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-field {
+  margin-bottom: 18px;
+}
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.form-label .required { color: var(--red); margin-left: 2px; }
+.form-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  font-size: 13.5px;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--blue); border-width: 2px; }
+.form-hint {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.form-hint.success { color: var(--green); }
+.form-hint.error { color: var(--red); }
+
+.form-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  font-size: 13.5px;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  cursor: pointer;
+}
+
+.form-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* ===== CHIP ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--blue-light);
+  color: var(--blue);
+  border: 1px solid var(--blue-mid);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.chip .chip-remove {
+  cursor: pointer;
+  color: var(--blue);
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.chip .chip-remove:hover { opacity: 1; }
+
+/* ===== RADIO ===== */
+.radio-group { display: flex; flex-direction: column; gap: 10px; }
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.radio-option:hover { border-color: var(--blue); background: var(--blue-light); }
+.radio-option.selected { border-color: var(--blue); background: var(--blue-light); }
+.radio-option input[type=radio] { margin-top: 2px; accent-color: var(--blue); }
+.radio-label { font-size: 13.5px; color: var(--text); font-weight: 500; }
+.radio-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ===== TOGGLE ===== */
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+}
+.toggle-label-group { flex: 1; }
+.toggle-label { font-size: 13.5px; font-weight: 500; color: var(--text); }
+.toggle-desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px; height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #a19f9d;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle input:checked + .toggle-track { background: var(--blue); }
+.toggle-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+/* ===== MODAL TWO-COLUMN ===== */
+.modal-two-col {
+  display: flex;
+  flex: 1;
+  min-height: 400px;
+}
+.modal-left {
+  width: 48%;
+  padding: 24px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.modal-right {
+  width: 52%;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.template-preview {
+  width: 100%;
+  min-height: 280px;
+  background: linear-gradient(135deg, #0078d4 0%, #005a9e 50%, #004578 100%);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  gap: 8px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.template-preview::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.template-preview::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: -30px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+.tp-logo {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.tp-nav {
+  font-size: 12px;
+  opacity: 0.7;
+  display: flex; gap: 16px;
+}
+.tp-hero {
+  font-size: 11px;
+  opacity: 0.5;
+  margin-top: 8px;
+}
+
+.section-header-collapse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.section-header-collapse .chevron-icon {
+  font-size: 10px;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+.section-header-collapse.open .chevron-icon { transform: rotate(90deg); }
+
+.capability-list {
+  list-style: none;
+  padding: 0;
+}
+.capability-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  padding: 5px 0;
+  line-height: 1.5;
+}
+.capability-list li::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.small-note {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+
+/* ===== MODAL WIZARD LEFT SIDEBAR ===== */
+.wizard-left {
+  width: 220px;
+  background: var(--bg);
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.wizard-illustration {
+  width: 100px; height: 100px;
+  background: linear-gradient(135deg, var(--blue) 0%, #005a9e 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+.wizard-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+/* ===== DRAG LIST (Change Order) ===== */
+.drag-list { list-style: none; padding: 0; }
+.drag-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: var(--white);
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.15s;
+}
+.drag-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.drag-handle {
+  color: #a19f9d;
+  font-size: 16px;
+  cursor: grab;
+}
+.drag-item-info { flex: 1; }
+.drag-item-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.drag-item-audience { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.drag-item-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ===== SITE DETAIL TABS ===== */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  gap: 0;
+}
+.tab {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+  font-weight: 600;
+}
+
+.info-box-yellow {
+  background: var(--yellow-bg);
+  border: 1px solid var(--yellow-border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-top: 14px;
+}
+.info-box-yellow .info-icon { margin-right: 6px; }
+
+.site-detail-links {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.site-detail-links a {
+  color: var(--blue);
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.site-detail-links a:hover { text-decoration: underline; }
+.site-comm-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+/* ===== SECTION DIVIDER ===== */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+.section-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+/* ===== SEARCH FIELD ===== */
+.search-field {
+  position: relative;
+  margin-bottom: 10px;
+}
+.search-field input {
+  width: 100%;
+  padding: 7px 10px 7px 32px;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+  outline: none;
+}
+.search-field input:focus { border-color: var(--blue); }
+.search-field .search-icon {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.chips-container {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 8px;
+}
+
+/* ===== URL PREFIX ===== */
+.url-prefix-row {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.url-prefix {
+  background: var(--bg);
+  border-right: 1px solid #8a8886;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  display: flex; align-items: center;
+}
+.url-suffix {
+  flex: 1;
+  padding: 7px 10px;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+.url-full {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c8c6c4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a19f9d; }
+
+/* ===== RESPONSIVE OVERLAY SCROLL ===== */
+.panel-view {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+}
+.panel-view.active { display: flex; }
+
+</style>
+</head>
+<body>
+
+<!-- ===== PROTOTYPE NAVIGATION ===== -->
+<div id="proto-nav">
+  <span class="label">Prototype Navigation:</span>
+  <a href="#" onclick="navTo(1); return false;" id="pnav-1">1. Settings list</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(2); return false;" id="pnav-2">2. Empty home site</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(3); return false;" id="pnav-3">3. Single site (current)</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(4); return false;" id="pnav-4">4. Multi-instance (proposed)</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(5); return false;" id="pnav-5">5. Add route</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(6); return false;" id="pnav-6">6. Template preview</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(7); return false;" id="pnav-7">7. Site name</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(8); return false;" id="pnav-8">8. Language &amp; options</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(9); return false;" id="pnav-9">9. Use existing site</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(10); return false;" id="pnav-10">10. Edit audience</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(11); return false;" id="pnav-11">11. Change order</a>
+  <span class="sep">|</span>
+  <a href="#" onclick="navTo(12); return false;" id="pnav-12">12. Site logo</a>
+</div>
+
+<!-- ===== SPAC SHELL ===== -->
+<div id="spac-shell">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="waffle">
+      <svg width="16" height="16" viewBox="0 0 16 16"><rect x="0" y="0" width="4" height="4" rx="0.5"/><rect x="6" y="0" width="4" height="4" rx="0.5"/><rect x="12" y="0" width="4" height="4" rx="0.5"/><rect x="0" y="6" width="4" height="4" rx="0.5"/><rect x="6" y="6" width="4" height="4" rx="0.5"/><rect x="12" y="6" width="4" height="4" rx="0.5"/><rect x="0" y="12" width="4" height="4" rx="0.5"/><rect x="6" y="12" width="4" height="4" rx="0.5"/><rect x="12" y="12" width="4" height="4" rx="0.5"/></svg>
+    </div>
+    <div id="topbar-title">Microsoft 365 admin center <span>›</span> SharePoint admin center</div>
+    <div id="topbar-icons">
+      <button title="Settings">⚙</button>
+      <button title="Help">?</button>
+      <button class="avatar-btn" title="Admin">CM</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div id="body-layout">
+
+    <!-- LEFT NAV -->
+    <div id="left-nav">
+      <div class="nav-item" onclick="navTo(1)">
+        <span>🏠</span> Home
+      </div>
+
+      <div class="nav-item expanded" id="nav-sites" onclick="toggleNav('sites-sub')">
+        Sites <span class="chevron" style="transform:rotate(90deg);">›</span>
+      </div>
+      <div id="nav-sites-sub">
+        <div class="nav-item nav-sub-item" id="nav-active-sites" onclick="switchToActiveSites()" style="padding-left:32px;">Active sites</div>
+        <div class="nav-item nav-sub-item" style="padding-left:32px;">Deleted sites</div>
+      </div>
+
+      <div class="nav-item">Containers</div>
+      <div class="nav-item">Policies</div>
+
+      <div class="nav-item expanded active" id="nav-settings" onclick="toggleNav('settings-sub')">
+        Settings <span class="chevron" style="transform:rotate(90deg);">›</span>
+      </div>
+      <div id="nav-settings-sub">
+        <div class="nav-item nav-sub-item active" id="nav-home-sites" style="padding-left: 32px; background: var(--blue-light); color: var(--blue); font-weight: 600; border-left: 3px solid var(--blue);" onclick="switchToSettings()">Home sites</div>
+        <div class="nav-item nav-sub-item">Notifications</div>
+        <div class="nav-item nav-sub-item">Pages</div>
+        <div class="nav-item nav-sub-item">Site creation</div>
+      </div>
+
+      <div class="nav-item">Content services</div>
+      <div class="nav-item">Migration</div>
+      <div class="nav-item">Reports</div>
+      <div class="nav-item">Advanced</div>
+      <div class="nav-item">More features</div>
+      <div class="nav-item">
+        Advanced management <span class="pro-badge">PRO</span>
+      </div>
+      <hr style="border:none; border-top:1px solid var(--border); margin: 8px 0;">
+      <div class="nav-item" style="color: var(--text-secondary);">Customize navigation</div>
+      <div class="nav-item" style="color: var(--text-secondary);">Show all</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main-content">
+
+      <!-- ===== SETTINGS VIEW (default) ===== -->
+      <div id="view-settings">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Find and configure settings for SharePoint and OneDrive</p>
+
+      <table class="settings-table" id="settings-tbl">
+        <thead>
+          <tr>
+            <th style="width:48px;">App</th>
+            <th style="width:160px;">Name</th>
+            <th>Description</th>
+            <th style="width:100px;">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- SharePoint group -->
+          <tr class="settings-group-header"><td colspan="4">SharePoint</td></tr>
+          <tr class="clickable" id="row-home-sites" onclick="navTo(2)">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Home sites</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Set a home site to give your organization an entry point to the intranet, provide org-wide search, and highlight relevant news.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">None set</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Notifications</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Configure SharePoint site notifications and email digest settings.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">On</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Pages</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Allow users to create and share SharePoint pages and news posts.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">On</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Site creation</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Control who can create SharePoint sites.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">Users</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Site storage limits</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Manage individual site storage quotas or use automatic management.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">Automatic</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon sp-icon">SP</div></div></td>
+            <td class="name-cell"><span class="link">Version history limits</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Set limits on the number of versions stored for files and list items.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">No limit</td>
+          </tr>
+          <!-- OneDrive group -->
+          <tr class="settings-group-header"><td colspan="4">OneDrive</td></tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon od-icon">☁</div></div></td>
+            <td class="name-cell"><span class="link">Notifications</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Configure notifications for OneDrive activity.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">On</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon od-icon">☁</div></div></td>
+            <td class="name-cell"><span class="link">Retention</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Control how long OneDrive files are retained after a user's account is deleted.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">30 days</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon od-icon">☁</div></div></td>
+            <td class="name-cell"><span class="link">Storage limit</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Set the default storage limit for each user's OneDrive.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">1 TB</td>
+          </tr>
+          <tr class="clickable">
+            <td><div class="app-cell"><div class="app-icon od-icon">☁</div></div></td>
+            <td class="name-cell"><span class="link">Sync</span></td>
+            <td style="color:var(--text-secondary); font-size:13px;">Manage OneDrive sync client settings and compatibility.</td>
+            <td style="color:var(--text-secondary); font-size:12.5px;">Allowed</td>
+          </tr>
+        </tbody>
+      </table>
+
+      </div><!-- /view-settings -->
+
+      <!-- ===== ACTIVE SITES VIEW ===== -->
+      <div id="view-active-sites" style="display:none;">
+        <h1 class="page-title">Active sites</h1>
+        <p class="page-subtitle" style="margin-bottom:20px;">Manage all SharePoint sites in your organization.</p>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+          <input type="text" placeholder="&#128269; Search by site name or URL" style="border:1px solid var(--border);border-radius:2px;padding:6px 10px;font-size:13px;width:280px;color:var(--text);">
+          <button style="border:1px solid var(--border);background:var(--white);padding:5px 12px;font-size:13px;border-radius:2px;cursor:pointer;color:var(--text);">&#9660; Filter</button>
+          <span style="font-size:12px;color:var(--text-secondary);margin-left:auto;">Showing home sites</span>
+        </div>
+        <table class="settings-table" id="active-sites-table" style="font-size:13px;">
+          <thead>
+            <tr>
+              <th style="width:30px;"></th>
+              <th>Site name</th>
+              <th>URL</th>
+              <th>Template</th>
+              <th>Storage used</th>
+            </tr>
+          </thead>
+          <tbody id="active-sites-tbody">
+          </tbody>
+        </table>
+      </div><!-- /view-active-sites -->
+
+      <!-- ===== RIGHT PANEL ===== -->
+      <div id="panel-overlay">
+
+        <!-- STATE 2: Empty home sites -->
+        <div class="panel-view" id="panel-state-2">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div class="panel-title">Home sites</div>
+              <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p class="panel-desc">Set a Home site to give your organization an entry point to the intranet, provide organization-wide search, and highlight relevant news and content. You can create a new Home site or use an existing communication site. To add multiple Home sites, use the Microsoft 365 admin center.</p>
+            <a class="learn-more" href="#">&#x1F517; Learn more about Home sites</a>
+
+            <div class="empty-state" style="margin-top: 24px;">
+              <div class="empty-illustration">🏠</div>
+              <h3>You don't have a Home site</h3>
+              <p>Use an existing site or create a new one</p>
+              <button class="btn btn-primary" onclick="navTo(5, 2)">+ Add a Home site</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 3: Single site (current SPAC) -->
+        <div class="panel-view" id="panel-state-3">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div class="panel-title">Home sites</div>
+              <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="info-banner">
+              <span class="info-icon">ℹ</span>
+              <span>To add an additional home site or for multi-site management go to Viva Connections in the <a href="#" onclick="return false;">Microsoft 365 admin center</a>.</span>
+            </div>
+            <p class="panel-desc">Set a Home site to give your organization an entry point to the intranet, provide organization-wide search, and highlight relevant news and content.</p>
+            <a class="learn-more" href="#">&#x1F517; Learn more about Home sites</a>
+            <div style="margin-top: 16px;"></div>
+
+            <div class="action-bar">
+              <input type="checkbox" class="action-checkbox" id="cb-state3-all">
+              <button class="btn-action" onclick="navTo(5, 3)">
+                <span>+</span> Add
+              </button>
+              <span class="separator"></span>
+              <button class="btn-action disabled">Remove</button>
+              <span class="separator"></span>
+              <button class="btn-action disabled">Manage in Active sites</button>
+            </div>
+
+            <table class="panel-table">
+              <thead>
+                <tr>
+                  <th style="width:30px;"></th>
+                  <th>Site name</th>
+                  <th>URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td>Contoso Home</td>
+                  <td class="url-cell" title="https://contoso.sharepoint.com/sites/ContosoHome">.../sites/ContosoHome</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- STATE 4: Multi-instance proposed -->
+        <div class="panel-view" id="panel-state-4">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div>
+                <div style="margin-bottom:6px;"><span class="proposed-badge">PROPOSED</span></div>
+                <div class="panel-title">Home sites</div>
+              </div>
+              <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p class="panel-desc" style="margin-bottom:12px;">Manage Home sites for your organization. Each Home site provides a Viva Connections experience for the specified audience.</p>
+
+            <div class="action-bar">
+              <button class="btn-action" onclick="navTo(5, 4)">
+                <span>+</span> Add
+              </button>
+              <span class="separator"></span>
+              <button class="btn-action disabled" id="btn-remove-state4">Remove</button>
+              <span class="separator"></span>
+              <button class="btn-action" onclick="navTo(11)">
+                &#8645; Change Order
+              </button>
+            </div>
+
+            <table class="panel-table" id="table-state4">
+              <thead>
+                <tr>
+                  <th style="width:30px;"></th>
+                  <th>Site name</th>
+                  <th>URL</th>
+                  <th>Audience (groups)</th>
+                  <th style="width:90px;">Show logo</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-state4">
+              </tbody>
+            </table>
+
+            <p class="note-text">Priority order determines default when a user belongs to multiple audiences. Use <strong>Change Order</strong> to set priority.</p>
+          </div>
+        </div>
+
+        <!-- STATE 9: Use existing site -->
+        <div class="panel-view" id="panel-state-9">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div class="panel-title">Use existing site</div>
+              <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+            </div>
+            <div class="panel-subtitle">Set an existing communication site as the home for your organization.</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-field">
+              <label class="form-label">Site URL <span class="required">*</span></label>
+              <input type="text" class="form-input" id="existing-site-url" placeholder="https://contoso.sharepoint.com/sites/..." oninput="checkExistingUrl(this)" value="">
+              <div class="form-hint success" id="existing-url-hint" style="display:none;">✓ This site can be set as your Home site.</div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <button class="btn btn-secondary" onclick="goBack9()">Back</button>
+            <button class="btn btn-primary" id="btn-save-existing" onclick="saveExistingSite()" disabled>Save</button>
+          </div>
+        </div>
+
+        <!-- STATE 10: Edit audience -->
+        <div class="panel-view" id="panel-state-10">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div class="panel-title">Edit audience</div>
+              <button class="panel-close" onclick="navTo(4)" title="Close">✕</button>
+            </div>
+            <div class="panel-subtitle">Choose who will see this Home Site as their default Viva Connections experience in Teams.</div>
+          </div>
+          <div class="panel-body">
+            <div class="radio-group" id="audience-radio-group">
+              <label class="radio-option selected" id="aud-opt-everyone" onclick="selectAudienceOpt('everyone')">
+                <input type="radio" name="audience-type" value="everyone" checked>
+                <div>
+                  <div class="radio-label">Everyone in the organization</div>
+                  <div class="radio-desc">All users see this as their default Viva Connections experience</div>
+                </div>
+              </label>
+              <label class="radio-option" id="aud-opt-scope" onclick="selectAudienceOpt('scope')">
+                <input type="radio" name="audience-type" value="scope">
+                <div>
+                  <div class="radio-label">Scope down the audience for this experience</div>
+                  <div class="radio-desc">Limit to specific Azure AD or M365 groups</div>
+                </div>
+              </label>
+            </div>
+
+            <div id="audience-scope-section" style="display:none; margin-top:16px;">
+              <hr class="section-divider">
+              <label class="form-label">Filter by group</label>
+              <div class="search-field">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="group-search-input" placeholder="Search Azure AD security groups or M365 Groups" oninput="handleGroupSearch(this)">
+              </div>
+              <div class="chips-container" id="selected-groups">
+                <!-- chips appear here -->
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <button class="btn btn-primary" onclick="saveAudience()">Save</button>
+            <button class="btn btn-secondary" onclick="navTo(4)">Cancel</button>
+          </div>
+        </div>
+
+        <!-- STATE 11: Change Order -->
+        <div class="panel-view" id="panel-state-11">
+          <div class="panel-header">
+            <div class="panel-header-row">
+              <div class="panel-title">Change Order</div>
+              <button class="panel-close" onclick="navTo(4)" title="Close">✕</button>
+            </div>
+            <div class="panel-subtitle">Drag to set the priority order. When a user belongs to multiple audiences, the highest-priority Home Site becomes their default.</div>
+          </div>
+          <div class="panel-body">
+            <ul class="drag-list" id="drag-list"></ul>
+          </div>
+          <div class="panel-footer">
+            <button class="btn btn-primary" onclick="navTo(4)">Save</button>
+            <button class="btn btn-secondary" onclick="navTo(4)">Cancel</button>
+          </div>
+        </div>
+
+        <!-- STATE 12: Site detail (Active Sites style) -->
+        <div class="panel-view" id="panel-state-12" style="overflow-y:auto;">
+          <!-- Header -->
+          <div style="padding:16px 20px 0; flex-shrink:0;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div id="s12-avatar" style="width:48px;height:48px;border-radius:6px;background:#0078d4;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">AC</div>
+                <div>
+                  <div id="s12-site-name" style="font-size:18px;font-weight:600;color:var(--text);">All Company</div>
+                  <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Communication site</div>
+                  <div style="display:flex;gap:16px;margin-top:6px;">
+                    <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);text-decoration:none;">&#128196; Email</a>
+                    <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);text-decoration:none;">&#127758; View site</a>
+                    <a href="#" onclick="return false;" style="font-size:12px;color:#a4262c;text-decoration:none;">&#128465; Delete</a>
+                  </div>
+                </div>
+              </div>
+              <button class="panel-close" onclick="closeActivePanel()" title="Close">✕</button>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin:10px 0 0;">This is a Home site for the specified audience.</div>
+          </div>
+          <!-- Tabs -->
+          <div style="padding:0 20px;flex-shrink:0;border-bottom:1px solid var(--border);">
+            <div class="tab-bar" style="margin-bottom:0;border-bottom:none;">
+              <div class="tab active" onclick="switchTab(this,'s12-tab-general')">General</div>
+              <div class="tab" onclick="switchTab(this,'s12-tab-activity')">Activity</div>
+              <div class="tab" onclick="switchTab(this,'s12-tab-membership')">Membership</div>
+              <div class="tab" onclick="switchTab(this,'s12-tab-settings')">Settings</div>
+              <div class="tab" onclick="switchTab(this,'s12-tab-vc')">Viva Connections</div>
+            </div>
+          </div>
+          <!-- Tab bodies -->
+          <div class="panel-body" style="padding:16px 20px;">
+
+            <!-- General tab -->
+            <div id="s12-tab-general">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Site info</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Site name</div>
+                  <div id="s12-site-name-display" style="font-size:13px;color:var(--text);">All Company</div>
+                  <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Site address</div>
+                  <a href="#" id="s12-site-url" onclick="return false;" style="font-size:13px;color:var(--blue);">.../allcompany</a>
+                  <br><a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Hub association</div>
+                  <div style="font-size:13px;color:var(--text);">None</div>
+                  <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Description</div>
+                  <div style="font-size:13px;color:var(--text);">Home site for the organization</div>
+                  <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Domain</div>
+                  <div style="font-size:13px;color:var(--text);">contoso.sharepoint.com</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Template</div>
+                  <div style="font-size:13px;color:var(--text);">Home site</div>
+                </div>
+              </div>
+              <div style="margin-top:20px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Created</div>
+                <div style="font-size:13px;color:var(--text);">4/8/26 at 3:32 AM by <a href="#" onclick="return false;" style="color:var(--blue);">Administrator</a></div>
+              </div>
+              <div style="margin-top:4px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:2px;margin-top:12px;">Site owner</div>
+                <div style="font-size:13px;color:var(--text);">Administrator</div>
+                <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+              </div>
+              <!-- Hidden fields for JS -->
+              <input type="hidden" id="s12-site-name-field">
+              <input type="hidden" id="s12-site-url-field">
+            </div>
+
+            <!-- Activity tab -->
+            <div id="s12-tab-activity" style="display:none;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:16px;">Site activity</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Last site activity</div><div style="font-size:13px;">None</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Files stored</div><div style="font-size:13px;">None</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Page views in the last 30 days</div><div style="font-size:13px;">None</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Page visits in the last 30 days</div><div style="font-size:13px;">None</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Files viewed/edited in the last 30 days</div><div style="font-size:13px;">None</div></div>
+                <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">Storage usage</div><div style="font-size:13px;">1.35 MB</div></div>
+              </div>
+            </div>
+
+            <!-- Membership tab -->
+            <div id="s12-tab-membership" style="display:none;">
+              <div style="display:flex;gap:0;">
+                <div style="width:140px;flex-shrink:0;border-right:1px solid var(--border);padding-right:12px;margin-right:16px;">
+                  <div style="font-size:13px;font-weight:600;padding:6px 0;background:#f3f2f1;padding-left:8px;margin-bottom:4px;">Owners</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">Members</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">Site admins</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">Site owners</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">Site members</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">Site visitors</div>
+                  <div style="font-size:13px;padding:6px 8px;color:var(--text-secondary);">About membership and permissions</div>
+                </div>
+                <div style="flex:1;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <a href="#" onclick="return false;" style="font-size:13px;color:var(--blue);text-decoration:none;">+ Add owners</a>
+                    <input type="text" placeholder="Search all membersh..." style="font-size:12px;border:1px solid var(--border);border-radius:2px;padding:4px 8px;width:160px;">
+                  </div>
+                  <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                    <thead><tr style="border-bottom:1px solid var(--border);">
+                      <th style="width:32px;text-align:left;padding:6px 0;"><input type="checkbox"></th>
+                      <th style="text-align:left;padding:6px 0;font-weight:600;">Name</th>
+                      <th style="text-align:left;padding:6px 0;font-weight:600;">Email address</th>
+                    </tr></thead>
+                    <tbody>
+                      <tr style="border-bottom:1px solid var(--border);">
+                        <td><input type="checkbox"></td>
+                        <td style="padding:8px 0;display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#a4262c;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">A</div>Administrator</td>
+                        <td style="color:var(--text-secondary);">admin@contoso.sharepoint.com</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Settings tab -->
+            <div id="s12-tab-settings" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div>
+                  <div style="font-size:12px;font-weight:600;margin-bottom:8px;">External file sharing</div>
+                  <select style="font-size:13px;border:1px solid var(--border);border-radius:2px;padding:4px 8px;width:100%;">
+                    <option>New and existing guests</option>
+                  </select>
+                  <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);display:block;margin-top:4px;">More sharing settings</a>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;margin-bottom:8px;">Privacy</div>
+                  <div style="font-size:13px;display:flex;flex-direction:column;gap:6px;">
+                    <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="privacy"> Private</label>
+                    <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="privacy" checked> Public</label>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Version history limit</div>
+                  <div style="font-size:13px;color:var(--text-secondary);">Same as organization-level (Automatic)</div>
+                  <a href="#" onclick="return false;" style="font-size:12px;color:var(--blue);">Edit</a>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Sensitivity label</div>
+                  <div style="font-size:13px;color:var(--text-secondary);">None</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Viva Connections tab (NEW) -->
+            <div id="s12-tab-vc" style="display:none;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Logo display in Viva Connections</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Control whether this Home Site's logo is shown in its Viva Connections instance in Teams.</div>
+              <div class="toggle-row">
+                <div class="toggle-label-group">
+                  <div class="toggle-label">Show Home Site logo in Viva Connections</div>
+                  <div class="toggle-desc">When all lightweight Viva Connections instances are upgraded to full-weight, existing instances will start showing a logo in Connections — ported from the Home Site if one exists, or auto-generated if not. Use this toggle to control whether the logo is displayed.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" onchange="toggleLogoNote(this)">
+                  <div class="toggle-track"></div>
+                  <div class="toggle-thumb"></div>
+                </label>
+              </div>
+              <div class="info-box-yellow" id="logo-auto-note" style="margin-top:12px;">
+                <span class="info-icon">⚠</span>
+                This site was upgraded from a lightweight Viva Connections instance. A logo has been auto-generated based on the site name. Toggle off to hide it.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /panel-overlay -->
+    </div><!-- /main-content -->
+  </div><!-- /body-layout -->
+</div><!-- /spac-shell -->
+
+
+<!-- ===== MODAL OVERLAY ===== -->
+<div id="modal-overlay">
+
+  <!-- STATE 5: Add home site — route selection -->
+  <div class="modal modal-sm" id="modal-state-5" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-header-row">
+        <div>
+          <div class="modal-title">Add a Home site</div>
+          <div class="modal-subtitle">Select the type of Home site you want to add.</div>
+        </div>
+        <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" style="padding: 24px;">
+      <div class="radio-group">
+        <label class="radio-option" id="route-opt-create" onclick="selectRoute('create')">
+          <input type="radio" name="add-route" value="create">
+          <div>
+            <div class="radio-label">Create a new site</div>
+            <div class="radio-desc">Use a template to create a new Home site from scratch</div>
+          </div>
+        </label>
+        <label class="radio-option" id="route-opt-existing" onclick="selectRoute('existing')">
+          <input type="radio" name="add-route" value="existing">
+          <div>
+            <div class="radio-label">Use an existing communication site</div>
+            <div class="radio-desc">Set an existing SharePoint communication site as your Home site</div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-back-5" onclick="goBack5()">Back</button>
+      <button class="btn btn-primary" id="btn-next-5" onclick="goNext5()" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- STATE 6: Template preview -->
+  <div class="modal modal-lg" id="modal-state-6" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-header-row">
+        <div>
+          <div class="modal-title">Preview and use 'Home site' template</div>
+          <div class="modal-subtitle" style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:12px; background:#f0f0f0; padding:2px 8px; border-radius:3px; color:var(--text-secondary);">From Microsoft</span>
+          </div>
+        </div>
+        <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="modal-two-col modal-body">
+      <div class="modal-left">
+        <div class="section-header-collapse open" onclick="toggleCollapse(this, 'capabilities-list')">
+          <span class="chevron-icon">›</span>
+          Site capabilities
+        </div>
+        <ul class="capability-list" id="capabilities-list">
+          <li>Company home node in app bar</li>
+          <li>Global navigation</li>
+          <li>SharePoint app experience in Teams desktop and mobile</li>
+          <li>Configure dashboard, news and resources</li>
+        </ul>
+
+        <div style="margin-top: 20px;">
+          <div class="section-header-collapse open" onclick="toggleCollapse(this, 'included-list')">
+            <span class="chevron-icon">›</span>
+            What's included
+          </div>
+          <ul class="capability-list" id="included-list">
+            <li>1 Home page</li>
+          </ul>
+        </div>
+
+        <div class="small-note">
+          Existing pages, libraries, and lists can still be accessed in Site contents. Any content added by a template can be edited or deleted later. <a href="#" onclick="return false;" style="color:var(--blue);">Learn more</a>
+        </div>
+      </div>
+
+      <div class="modal-right">
+        <div class="template-preview">
+          <div class="tp-logo">Contoso</div>
+          <div class="tp-nav">
+            <span>Home</span>
+            <span>News</span>
+            <span>Documents</span>
+            <span>Resources</span>
+          </div>
+          <div style="width:80%; background:rgba(255,255,255,0.1); height:1px; margin:8px 0;"></div>
+          <div style="font-size:10px; opacity:0.5; display:flex; gap:12px;">
+            <span>📰 Latest news</span>
+            <span>🔗 Quick links</span>
+          </div>
+          <div class="tp-hero">Home site template preview</div>
+        </div>
+        <div style="font-size:12px; color:var(--text-secondary); text-align:center;">Template preview — Contoso Home Site</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="navTo(7)">Use template</button>
+    </div>
+  </div>
+
+  <!-- STATE 7: Give your site a name -->
+  <div class="modal modal-lg" id="modal-state-7" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-header-row">
+        <div class="modal-title">Create Home site</div>
+        <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" style="display:flex; min-height: 380px;">
+      <div class="wizard-left">
+        <div class="wizard-illustration">🏠</div>
+        <div class="wizard-label">Home site</div>
+        <div style="margin-top: 20px; width:100%;">
+          <div style="font-size:12px; color:var(--text-secondary); text-align:left;">
+            <div style="display:flex; align-items:center; gap:6px; padding:6px 0; border-left:2px solid var(--blue); padding-left:8px; font-weight:600; color:var(--blue);">Step 1 of 3 — Name</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; padding:24px; overflow-y:auto;">
+        <div class="form-field">
+          <label class="form-label">Site name <span class="required">*</span></label>
+          <input type="text" class="form-input" id="site-name-input" value="Contoso APAC" oninput="updateSiteAddress(this)">
+          <div class="form-hint success" id="site-name-hint">✓ The site name is available.</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Site description</label>
+          <input type="text" class="form-input" placeholder="Tell people the purpose of your site">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Site address <span class="required">*</span></label>
+          <div class="url-prefix-row">
+            <div class="url-prefix">https://contoso.sharepoint.com/sites/</div>
+            <input type="text" class="url-suffix" id="site-address-input" value="contosoapac" oninput="updateSiteAddressFromSuffix()">
+          </div>
+          <div class="form-hint success" id="site-address-hint">✓ The site address is available.</div>
+          <div class="url-full" id="site-full-url">Full URL: https://contoso.sharepoint.com/sites/contosoapac</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Site owner <span class="required">*</span></label>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding: 6px 0;">
+            <span class="chip">Administrator <span class="chip-remove">×</span></span>
+            <input type="text" style="border:none; outline:none; font-size:13px; min-width:120px; font-family:'Segoe UI',sans-serif; color:var(--text-secondary);" placeholder="Add owner...">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="navTo(6)">Back</button>
+      <button class="btn btn-primary" onclick="navTo(8)">Next</button>
+    </div>
+  </div>
+
+  <!-- STATE 8: Language and options -->
+  <div class="modal modal-lg" id="modal-state-8" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-header-row">
+        <div class="modal-title">Create Home site</div>
+        <button class="panel-close" onclick="navTo(1)" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" style="display:flex; min-height: 320px;">
+      <div class="wizard-left">
+        <div class="wizard-illustration">🏠</div>
+        <div class="wizard-label">Home site</div>
+        <div style="margin-top: 20px; width:100%;">
+          <div style="font-size:12px; color:var(--text-secondary); text-align:left;">
+            <div style="display:flex; align-items:center; gap:6px; padding:6px 0; border-left:2px solid var(--blue); padding-left:8px; font-weight:600; color:var(--blue);">Step 2 of 3 — Options</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; padding:24px; overflow-y:auto;">
+        <div class="form-field">
+          <label class="form-label">Select a language</label>
+          <select class="form-select">
+            <option selected>English</option>
+            <option>French</option>
+            <option>German</option>
+            <option>Japanese</option>
+            <option>Spanish</option>
+            <option>Chinese (Simplified)</option>
+          </select>
+          <div class="form-note">Select the default site language for your site. You can't change this later.</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Time zone</label>
+          <select class="form-select">
+            <option selected>(UTC-08:00) Pacific Time (US and Canada)</option>
+            <option>(UTC-05:00) Eastern Time (US and Canada)</option>
+            <option>(UTC+00:00) Coordinated Universal Time</option>
+            <option>(UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+            <option>(UTC+08:00) Beijing, Chongqing, Hong Kong, Urumqi</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="navTo(7)">Back</button>
+      <button class="btn btn-primary" id="btn-create-site" onclick="createSite()" style="display:flex; align-items:center; gap:6px;">
+        <span id="create-spinner" style="display:none;">⏳</span>
+        <span id="btn-create-site-label">Create site</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /modal-overlay -->
+
+
+<script>
+// ===== STATE MANAGEMENT =====
+let currentState = 1;
+let addSourceState = 2;       // which state triggered Add flow
+let selectedAudience = null;  // for edit audience panel
+let currentEditRowId = null;  // which row is being edited in audience panel
+
+// Track which rows exist in state 4 (starts with just Contoso Home)
+let state4Initialized = false;
+
+// Drag-and-drop state
+let dragSrcEl = null;
+
+function navTo(state, extra) {
+  if (extra !== undefined) {
+    if (state === 5) addSourceState = extra;
+    if (state === 10 && typeof extra === 'string') {
+      selectedAudience = extra;
+      // extra is used as audience text for direct nav; row context set separately
+      loadAudiencePanel(extra);
+    }
+  }
+
+  currentState = state;
+
+  // Update proto nav active state
+  document.querySelectorAll('#proto-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = document.getElementById('pnav-' + state);
+  if (activeLink) activeLink.classList.add('active');
+
+  // Hide modal
+  const modalOverlay = document.getElementById('modal-overlay');
+  modalOverlay.classList.remove('open');
+  document.querySelectorAll('#modal-overlay .modal').forEach(m => m.style.display = 'none');
+
+  // Hide all panel views
+  document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+
+  // Close panel by default
+  const panel = document.getElementById('panel-overlay');
+  panel.classList.remove('open');
+
+  // Update settings table row highlight
+  const row = document.getElementById('row-home-sites');
+  if (state >= 2 && state !== 1) {
+    row.classList.add('row-active');
+  } else {
+    row.classList.remove('row-active');
+  }
+
+  // Route to correct panel/modal
+  switch (state) {
+    case 1:
+      // Just settings table, panel closed
+      row.classList.remove('row-active');
+      break;
+
+    case 2:
+      openPanel('panel-state-2');
+      break;
+
+    case 3:
+      openPanel('panel-state-3');
+      break;
+
+    case 4:
+      // Ensure Settings view is shown (not Active Sites)
+      document.getElementById('view-settings').style.display = 'block';
+      document.getElementById('view-active-sites').style.display = 'none';
+      openPanel('panel-state-4');
+      if (!state4Initialized) {
+        state4Initialized = true;
+      }
+      break;
+
+    case 5:
+      openModal('modal-state-5');
+      // Reset selection
+      document.querySelectorAll('#modal-state-5 .radio-option').forEach(o => o.classList.remove('selected'));
+      document.querySelectorAll('#modal-state-5 input[type=radio]').forEach(r => r.checked = false);
+      document.getElementById('btn-next-5').disabled = true;
+      break;
+
+    case 6:
+      openModal('modal-state-6');
+      break;
+
+    case 7:
+      openModal('modal-state-7');
+      break;
+
+    case 8:
+      openModal('modal-state-8');
+      // Reset create button
+      document.getElementById('btn-create-site').disabled = false;
+      document.getElementById('create-spinner').style.display = 'none';
+      document.getElementById('btn-create-site-label').textContent = 'Create site';
+      break;
+
+    case 9:
+      openPanel('panel-state-9');
+      document.getElementById('existing-site-url').value = '';
+      document.getElementById('existing-url-hint').style.display = 'none';
+      document.getElementById('btn-save-existing').disabled = true;
+      break;
+
+    case 10:
+      openPanel('panel-state-10');
+      // Direct nav from prototype bar — show demo state
+      if (extra === undefined) {
+        currentEditRowId = null;
+        loadAudiencePanel(selectedAudience || 'Frontline Team');
+      }
+      break;
+
+    case 11:
+      openPanel('panel-state-11');
+      buildChangeOrderList();
+      break;
+
+    case 12:
+      // Switch to Active Sites view (tabs live there, not in Home Sites)
+      switchToActiveSites();
+      openPanel('panel-state-12');
+      switchTabByName('s12-tab-general');
+      break;
+  }
+}
+
+function openPanel(id) {
+  const panel = document.getElementById('panel-overlay');
+  document.getElementById(id).classList.add('active');
+  panel.classList.add('open');
+}
+
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+// ===== NAVIGATION HELPERS =====
+let selectedRoute = null;
+
+function selectRoute(route) {
+  selectedRoute = route;
+  document.getElementById('route-opt-create').classList.toggle('selected', route === 'create');
+  document.getElementById('route-opt-existing').classList.toggle('selected', route === 'existing');
+  document.querySelector('#route-opt-create input').checked = (route === 'create');
+  document.querySelector('#route-opt-existing input').checked = (route === 'existing');
+  document.getElementById('btn-next-5').disabled = false;
+}
+
+function goNext5() {
+  if (selectedRoute === 'create') {
+    navTo(6);
+  } else if (selectedRoute === 'existing') {
+    navTo(9);
+  }
+}
+
+function goBack5() {
+  navTo(addSourceState);
+}
+
+function goBack9() {
+  navTo(5);
+}
+
+// ===== LEFT NAV TOGGLES =====
+function toggleNav(id) {
+  const sub = document.getElementById('nav-' + id);
+  if (sub) {
+    const visible = sub.style.display !== 'none';
+    sub.style.display = visible ? 'none' : 'block';
+  }
+}
+
+// ===== FORM HELPERS =====
+function updateSiteAddress(input) {
+  const name = input.value;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 50);
+  document.getElementById('site-address-input').value = slug;
+  document.getElementById('site-full-url').textContent = 'Full URL: https://contoso.sharepoint.com/sites/' + (slug || '...');
+  document.getElementById('site-name-hint').style.display = name ? '' : 'none';
+  document.getElementById('site-address-hint').style.display = slug ? '' : 'none';
+}
+
+function updateSiteAddressFromSuffix() {
+  const val = document.getElementById('site-address-input').value;
+  document.getElementById('site-full-url').textContent = 'Full URL: https://contoso.sharepoint.com/sites/' + (val || '...');
+}
+
+function checkExistingUrl(input) {
+  const hint = document.getElementById('existing-url-hint');
+  const btn = document.getElementById('btn-save-existing');
+  const hasValue = input.value.trim().length > 10;
+  hint.style.display = hasValue ? '' : 'none';
+  btn.disabled = !hasValue;
+}
+
+// ===== CREATE SITE (simulate loading) — Route 1 =====
+function createSite() {
+  const btn = document.getElementById('btn-create-site');
+  const spinner = document.getElementById('create-spinner');
+  const label = document.getElementById('btn-create-site-label');
+  btn.disabled = true;
+  spinner.style.display = 'inline';
+  label.textContent = 'Creating...';
+
+  setTimeout(() => {
+    addState4Row('contoso-apac', 'Contoso APAC', '.../sites/contosoapac', 'https://contoso.sharepoint.com/sites/contosoapac');
+    navTo(4);
+  }, 1400);
+}
+
+// ===== SAVE EXISTING SITE — Route 2 =====
+function saveExistingSite() {
+  addState4Row('contoso-frontline', 'Contoso Frontline', '.../sites/FrontlineHub', 'https://contoso.sharepoint.com/sites/FrontlineHub');
+  navTo(4);
+}
+
+// ===== ADD ROW TO STATE 4 TABLE =====
+function addState4Row(rowId, siteName, urlShort, urlFull) {
+  // Avoid duplicate rows
+  if (document.querySelector('[data-row-id="' + rowId + '"]')) return;
+
+  const tbody = document.getElementById('tbody-state4');
+  const tr = document.createElement('tr');
+  tr.setAttribute('data-row-id', rowId);
+  tr.innerHTML = `
+    <td><input type="checkbox" onchange="updateRemoveBtn(this)"></td>
+    <td>${siteName}</td>
+    <td class="url-cell" title="${urlFull}">${urlShort}</td>
+    <td class="audience-cell" id="aud-cell-${rowId}" onclick="openAudienceForRow('${rowId}')" style="color:var(--text-secondary); font-style:italic;">Not set</td>
+    <td onclick="event.stopPropagation()">
+      <label class="toggle" title="Show logo in Viva Connections">
+        <input type="checkbox">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </td>
+  `;
+  tbody.appendChild(tr);
+  // Also add to Active Sites table
+  addActiveSitesRow(siteName, urlFull, urlShort);
+}
+
+// ===== SWITCH MAIN VIEW =====
+function switchToActiveSites() {
+  // Expand Sites nav, highlight Active sites
+  const sitesSub = document.getElementById('nav-sites-sub');
+  sitesSub.style.display = 'block';
+  document.getElementById('nav-sites').classList.add('expanded');
+  // Remove active from Home sites nav
+  const navHS = document.getElementById('nav-home-sites');
+  navHS.classList.remove('active');
+  navHS.removeAttribute('style');
+  // Activate Active sites nav
+  const navAS = document.getElementById('nav-active-sites');
+  navAS.classList.add('active');
+  navAS.style.cssText = 'padding-left:32px;background:var(--blue-light);color:var(--blue);font-weight:600;border-left:3px solid var(--blue);';
+  // Remove active from Settings nav
+  document.getElementById('nav-settings').classList.remove('active');
+  // Switch views
+  document.getElementById('view-settings').style.display = 'none';
+  document.getElementById('view-active-sites').style.display = 'block';
+  // Close any open panel
+  document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('panel-overlay').classList.remove('open');
+}
+
+function switchToSettings() {
+  // Collapse Sites / deactivate Active sites
+  const navAS = document.getElementById('nav-active-sites');
+  navAS.classList.remove('active');
+  navAS.removeAttribute('style');
+  // Activate Settings > Home sites nav
+  document.getElementById('nav-settings').classList.add('active', 'expanded');
+  const navHS = document.getElementById('nav-home-sites');
+  navHS.classList.add('active');
+  navHS.style.cssText = 'padding-left:32px;background:var(--blue-light);color:var(--blue);font-weight:600;border-left:3px solid var(--blue);';
+  // Switch views
+  document.getElementById('view-active-sites').style.display = 'none';
+  document.getElementById('view-settings').style.display = 'block';
+  // Reopen the home sites panel (State 4)
+  document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('panel-overlay').classList.remove('open');
+  navTo(4);
+}
+
+function closeActivePanel() {
+  // Just close the panel, stay on Active Sites view
+  document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('panel-overlay').classList.remove('open');
+}
+
+// ===== ADD ROW TO ACTIVE SITES TABLE =====
+function addActiveSitesRow(siteName, siteUrl, urlShort) {
+  const tbody = document.getElementById('active-sites-tbody');
+  if (!tbody) return;
+  // Avoid duplicates
+  const existing = Array.from(tbody.querySelectorAll('td')).find(td => td.textContent.trim() === siteName);
+  if (existing) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="checkbox"></td>
+    <td><a href="#" onclick="openSiteDetail('${siteName}', '${siteUrl}'); return false;" style="color:var(--blue);text-decoration:none;">${siteName}</a></td>
+    <td style="color:var(--text-secondary);font-size:12px;">${urlShort}</td>
+    <td style="color:var(--text-secondary);font-size:12px;">Communication site (Home)</td>
+    <td style="color:var(--text-secondary);font-size:12px;">< 1 MB</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// ===== OPEN SITE DETAIL (STATE 12) =====
+function openSiteDetail(siteName, siteUrl) {
+  // Switch to Active Sites view first (matches real SPAC — tabs live in Active Sites)
+  switchToActiveSites();
+  // Update site detail header
+  const initials = siteName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('s12-avatar').textContent = initials;
+  document.getElementById('s12-site-name').textContent = siteName;
+  // Update General tab fields
+  const nameDisplay = document.getElementById('s12-site-name-display');
+  if (nameDisplay) nameDisplay.textContent = siteName;
+  document.getElementById('s12-site-url').textContent = siteUrl;
+  document.getElementById('s12-site-name-field').value = siteName;
+  document.getElementById('s12-site-url-field').value = siteUrl;
+  // Open the detail panel (State 12)
+  document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('panel-state-12').classList.add('active');
+  document.getElementById('panel-overlay').classList.add('open');
+  switchTabByName('s12-tab-general');
+  // Update proto nav
+  currentState = 12;
+  document.querySelectorAll('#proto-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = document.getElementById('pnav-12');
+  if (activeLink) activeLink.classList.add('active');
+}
+
+// ===== OPEN AUDIENCE PANEL FOR A SPECIFIC ROW =====
+function openAudienceForRow(rowId) {
+  currentEditRowId = rowId;
+  const cell = document.getElementById('aud-cell-' + rowId);
+  const cellText = cell ? cell.textContent.trim() : '';
+  // Determine current audience state from cell text
+  if (!cellText || cellText === 'Not set' || cellText === 'Everyone') {
+    selectedAudience = (cellText === 'Everyone') ? 'Everyone in the organization' : null;
+  } else {
+    selectedAudience = cellText;
+  }
+  loadAudiencePanel(selectedAudience || '');
+  openPanel('panel-state-10');
+  currentState = 10;
+  document.querySelectorAll('#proto-nav a').forEach(a => a.classList.remove('active'));
+  const activeLink = document.getElementById('pnav-10');
+  if (activeLink) activeLink.classList.add('active');
+}
+
+// ===== SAVE AUDIENCE AND UPDATE TABLE ROW =====
+function saveAudience() {
+  const isEveryone = document.getElementById('aud-opt-everyone').classList.contains('selected');
+  let audienceLabel = '';
+
+  if (isEveryone) {
+    audienceLabel = 'Everyone';
+  } else {
+    // Collect chip names
+    const chips = document.querySelectorAll('#selected-groups .chip');
+    const names = [];
+    chips.forEach(chip => {
+      // chip text minus the "×" remove button text
+      const text = chip.childNodes[0].textContent.trim();
+      if (text) names.push(text);
+    });
+    audienceLabel = names.join(', ');
+  }
+
+  // Update the audience cell for the edited row
+  if (currentEditRowId) {
+    const cell = document.getElementById('aud-cell-' + currentEditRowId);
+    if (cell) {
+      if (audienceLabel) {
+        cell.textContent = audienceLabel;
+        cell.style.color = 'var(--blue)';
+        cell.style.fontStyle = 'normal';
+        cell.style.cursor = 'pointer';
+        // Re-attach click handler (textContent wipes innerHTML)
+        const rowId = currentEditRowId;
+        cell.onclick = function() { openAudienceForRow(rowId); };
+      } else {
+        cell.textContent = 'Not set';
+        cell.style.color = 'var(--text-secondary)';
+        cell.style.fontStyle = 'italic';
+        const rowId = currentEditRowId;
+        cell.onclick = function() { openAudienceForRow(rowId); };
+      }
+    }
+  }
+
+  currentEditRowId = null;
+  navTo(4);
+}
+
+// ===== AUDIENCE PANEL =====
+function loadAudiencePanel(audienceText) {
+  const isScope = audienceText && audienceText !== 'Everyone' && audienceText !== 'Everyone in the organization' && audienceText !== '';
+
+  // Clear group chips
+  document.getElementById('selected-groups').innerHTML = '';
+  // Clear search input
+  const searchInput = document.getElementById('group-search-input');
+  if (searchInput) searchInput.value = '';
+
+  if (isScope) {
+    selectAudienceOpt('scope');
+    // Add chips for each group (comma-separated)
+    const groups = audienceText.split(',').map(g => g.trim()).filter(Boolean);
+    groups.forEach(g => addGroupChip(g));
+  } else {
+    selectAudienceOpt('everyone');
+  }
+}
+
+function selectAudienceOpt(opt) {
+  const everyoneOpt = document.getElementById('aud-opt-everyone');
+  const scopeOpt = document.getElementById('aud-opt-scope');
+  const scopeSection = document.getElementById('audience-scope-section');
+
+  if (opt === 'everyone') {
+    everyoneOpt.classList.add('selected');
+    scopeOpt.classList.remove('selected');
+    everyoneOpt.querySelector('input').checked = true;
+    scopeOpt.querySelector('input').checked = false;
+    scopeSection.style.display = 'none';
+  } else {
+    everyoneOpt.classList.remove('selected');
+    scopeOpt.classList.add('selected');
+    everyoneOpt.querySelector('input').checked = false;
+    scopeOpt.querySelector('input').checked = true;
+    scopeSection.style.display = 'block';
+  }
+}
+
+function handleGroupSearch(input) {
+  const val = input.value.trim();
+  if (val.length > 2) {
+    // Simulate adding a group
+    input.value = '';
+    addGroupChip(val);
+  }
+}
+
+function addGroupChip(name) {
+  const container = document.getElementById('selected-groups');
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.innerHTML = `${name} <span class="chip-remove" onclick="removeChip(this)">×</span>`;
+  container.appendChild(chip);
+}
+
+function removeChip(el) {
+  el.parentElement.remove();
+}
+
+// ===== REMOVE BUTTON STATE =====
+function updateRemoveBtn(checkbox) {
+  const anyChecked = document.querySelectorAll('#tbody-state4 input[type=checkbox]:checked').length > 0;
+  const btn = document.getElementById('btn-remove-state4');
+  btn.classList.toggle('disabled', !anyChecked);
+}
+
+// ===== TABS =====
+function switchTab(tabEl, tabId) {
+  // Find all tabs in same tab-bar
+  const tabBar = tabEl.parentElement;
+  tabBar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  switchTabByName(tabId);
+}
+
+function switchTabByName(tabId) {
+  // Handle State 12 tabs (s12-tab-*)
+  if (tabId.startsWith('s12-tab-')) {
+    const s12Tabs = ['s12-tab-general', 's12-tab-activity', 's12-tab-membership', 's12-tab-settings', 's12-tab-vc'];
+    s12Tabs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = id === tabId ? 'block' : 'none';
+    });
+    // Sync tab bar active state
+    const s12TabMap = { 's12-tab-general': 0, 's12-tab-activity': 1, 's12-tab-membership': 2, 's12-tab-settings': 3, 's12-tab-vc': 4 };
+    const tabBar12 = document.querySelector('#panel-state-12 .tab-bar');
+    if (tabBar12) {
+      const tabEls = tabBar12.querySelectorAll('.tab');
+      tabEls.forEach((t, i) => t.classList.toggle('active', i === s12TabMap[tabId]));
+    }
+    return;
+  }
+  // Handle legacy tabs (other states)
+  const tabs = ['tab-general', 'tab-audiences', 'tab-permissions', 'tab-logo'];
+  tabs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+// ===== TEMPLATE COLLAPSE =====
+function toggleCollapse(headerEl, contentId) {
+  const content = document.getElementById(contentId);
+  const isOpen = headerEl.classList.contains('open');
+  if (isOpen) {
+    content.style.display = 'none';
+    headerEl.classList.remove('open');
+  } else {
+    content.style.display = '';
+    headerEl.classList.add('open');
+  }
+}
+
+// ===== LOGO TOGGLE NOTE =====
+function toggleLogoNote(input) {
+  const note = document.getElementById('logo-auto-note');
+  note.style.display = input.checked ? 'block' : 'none';
+}
+
+// ===== BUILD CHANGE ORDER LIST FROM STATE 4 TABLE =====
+function buildChangeOrderList() {
+  const tbody = document.getElementById('tbody-state4');
+  const dragList = document.getElementById('drag-list');
+  dragList.innerHTML = '';
+  const rows = tbody.querySelectorAll('tr');
+  if (rows.length === 0) {
+    dragList.innerHTML = '<li style="padding:12px;color:var(--text-secondary);font-size:13px;">No Home Sites added yet.</li>';
+    return;
+  }
+  rows.forEach((row, i) => {
+    const name = row.querySelector('.link-cell') ? row.querySelector('.link-cell').textContent.trim() : '';
+    const audCell = row.querySelector('.audience-cell');
+    const audience = audCell ? audCell.textContent.trim() : 'Not set';
+    const li = document.createElement('li');
+    li.className = 'drag-item';
+    li.draggable = true;
+    li.innerHTML = `
+      <span class="drag-handle">⠿</span>
+      <div class="drag-item-num">${i + 1}</div>
+      <div class="drag-item-info">
+        <div class="drag-item-name">${name}</div>
+        <div class="drag-item-audience">${audience}</div>
+      </div>`;
+    dragList.appendChild(li);
+  });
+  initDragDrop();
+}
+
+// ===== DRAG AND DROP (Change Order) =====
+function initDragDrop() {
+  const list = document.getElementById('drag-list');
+  if (!list) return;
+
+  list.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrcEl = item;
+      e.dataTransfer.effectAllowed = 'move';
+      item.style.opacity = '0.4';
+    });
+    item.addEventListener('dragend', e => {
+      item.style.opacity = '1';
+      list.querySelectorAll('.drag-item').forEach(i => i.style.background = '');
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      item.style.background = 'var(--blue-light)';
+      return false;
+    });
+    item.addEventListener('dragleave', e => {
+      item.style.background = '';
+    });
+    item.addEventListener('drop', e => {
+      e.stopPropagation();
+      if (dragSrcEl !== item) {
+        // Swap them
+        const allItems = Array.from(list.querySelectorAll('.drag-item'));
+        const srcIdx = allItems.indexOf(dragSrcEl);
+        const tgtIdx = allItems.indexOf(item);
+        if (srcIdx < tgtIdx) {
+          list.insertBefore(dragSrcEl, item.nextSibling);
+        } else {
+          list.insertBefore(dragSrcEl, item);
+        }
+        // Renumber
+        list.querySelectorAll('.drag-item-num').forEach((num, i) => {
+          num.textContent = i + 1;
+        });
+      }
+      item.style.background = '';
+      return false;
+    });
+  });
+}
+
+// Observer to init drag when state 11 becomes active
+const dragObserver = new MutationObserver(() => {
+  const panelState11 = document.getElementById('panel-state-11');
+  if (panelState11 && panelState11.classList.contains('active')) {
+    initDragDrop();
+  }
+});
+dragObserver.observe(document.getElementById('panel-state-11'), { attributes: true, attributeFilter: ['class'] });
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  navTo(1);
+});
+
+// Click outside modal to close
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) {
+    // Don't close on outside click in prototype — keep state
+  }
+});
+
+</script>
+</body>
+</html>
