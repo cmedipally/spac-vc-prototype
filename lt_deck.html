@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VC Admin Migration — LT Review</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #1b1b1b;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* NAV */
+#nav {
+  background: #111;
+  color: #aaa;
+  font-size: 12px;
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+#nav button {
+  background: #333;
+  border: none;
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+#nav button:hover { background: #0078d4; }
+#slide-counter { margin-left: auto; }
+
+/* SLIDES CONTAINER */
+#slides {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.slide {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: 56px 72px;
+  overflow: hidden;
+}
+.slide.active { display: flex; flex-direction: column; }
+
+/* SLIDE VARIANTS */
+.slide-title {
+  background: linear-gradient(135deg, #0050a0 0%, #0078d4 60%, #00bcf2 100%);
+  color: #fff;
+  justify-content: center;
+  align-items: flex-start;
+}
+.slide-dark {
+  background: #0f2a4a;
+  color: #fff;
+}
+.slide-light {
+  background: #ffffff;
+}
+.slide-accent {
+  background: #f3f9ff;
+}
+
+/* TYPOGRAPHY */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+.slide-title .eyebrow { color: rgba(255,255,255,0.75); }
+.slide-dark .eyebrow { color: #90c8ff; }
+.slide-light .eyebrow { color: #0078d4; }
+.slide-accent .eyebrow { color: #0078d4; }
+
+h1 { font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 16px; }
+h2 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.slide-light h2, .slide-accent h2 { color: #1b1b1b; }
+.slide-dark h2 { color: #fff; }
+.subtitle { font-size: 18px; opacity: 0.85; margin-bottom: 8px; }
+.slide-title .meta { font-size: 14px; opacity: 0.65; margin-top: 24px; }
+
+/* SECTION RULE */
+.rule {
+  width: 48px; height: 3px;
+  border-radius: 2px;
+  margin-bottom: 28px;
+  flex-shrink: 0;
+}
+.slide-title .rule { background: rgba(255,255,255,0.5); }
+.slide-dark .rule { background: #0078d4; }
+.slide-light .rule { background: #0078d4; }
+.slide-accent .rule { background: #0078d4; }
+
+/* STAT CARDS */
+.stat-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 8px;
+}
+.stat-card {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 22px 24px;
+}
+.slide-light .stat-card, .slide-accent .stat-card {
+  background: #fff;
+  border: 1px solid #d2e4f5;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.stat-number {
+  font-size: 38px;
+  font-weight: 700;
+  color: #00bcf2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.slide-light .stat-number, .slide-accent .stat-number { color: #0078d4; }
+.stat-label {
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.4;
+}
+.slide-light .stat-label, .slide-accent .stat-label { color: #605e5c; }
+
+/* BUCKETS */
+.bucket-row {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+.bucket {
+  flex: 1;
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+.bucket-enable { background: #e8f5e9; border: 1px solid #a5d6a7; }
+.bucket-remove { background: #fff3e0; border: 1px solid #ffcc80; }
+.bucket-deprecate { background: #fce4ec; border: 1px solid #f48fb1; }
+.bucket-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.bucket-enable .bucket-title { color: #2e7d32; }
+.bucket-remove .bucket-title { color: #e65100; }
+.bucket-deprecate .bucket-title { color: #c62828; }
+.bucket ul { padding-left: 16px; }
+.bucket li { font-size: 13.5px; color: #323130; margin-bottom: 8px; line-height: 1.4; }
+
+/* REQUIREMENTS TABLE */
+.req-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  flex: 1;
+}
+.req-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 10px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.req-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: top;
+  color: #323130;
+}
+.req-table tr:hover td { background: #f3f9ff; }
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.badge-p0 { background: #fde7e9; color: #a4262c; }
+.badge-p1 { background: #fff4ce; color: #7a5700; }
+.badge-p2 { background: #e8f5e9; color: #1e6823; }
+
+/* TIMELINE */
+.timeline {
+  display: flex;
+  gap: 0;
+  margin-top: 16px;
+  flex: 1;
+  align-items: flex-start;
+}
+.tl-item {
+  flex: 1;
+  position: relative;
+  padding: 0 12px;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #d2e4f5;
+}
+.tl-item:first-child::before { left: 50%; }
+.tl-item:last-child::before { right: 50%; }
+.tl-dot {
+  width: 28px; height: 28px;
+  background: #0078d4;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  position: relative;
+  z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tl-date {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0078d4;
+  margin-bottom: 4px;
+}
+.tl-label {
+  text-align: center;
+  font-size: 12px;
+  color: #323130;
+  line-height: 1.4;
+}
+.tl-sub {
+  text-align: center;
+  font-size: 11px;
+  color: #a19f9d;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* RISK TABLE */
+.risk-row {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+}
+.risk-high { background: #fde7e9; border-left: 4px solid #a4262c; }
+.risk-med  { background: #fff4ce; border-left: 4px solid #f3d04e; }
+.risk-low  { background: #e8f5e9; border-left: 4px solid #107c10; }
+.risk-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.risk-title { font-size: 13.5px; font-weight: 600; color: #1b1b1b; margin-bottom: 3px; }
+.risk-desc { font-size: 12.5px; color: #605e5c; line-height: 1.5; }
+
+/* TWO COL */
+.two-col { display: flex; gap: 40px; flex: 1; }
+.col { flex: 1; }
+
+/* BODY TEXT */
+.body-text { font-size: 14px; color: #323130; line-height: 1.7; }
+.slide-dark .body-text { color: rgba(255,255,255,0.85); }
+
+ul.bullets { padding-left: 18px; }
+ul.bullets li { font-size: 14px; color: #323130; margin-bottom: 10px; line-height: 1.5; }
+.slide-dark ul.bullets li { color: rgba(255,255,255,0.85); }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0078d4;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+.slide-dark .section-label { color: #90c8ff; }
+
+/* FOOTER */
+.slide-footer {
+  font-size: 11px;
+  color: #a19f9d;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.slide-dark .slide-footer { color: rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<div id="nav">
+  <button onclick="prev()">← Prev</button>
+  <button onclick="next()">Next →</button>
+  <span id="slide-counter">1 / 8</span>
+</div>
+
+<div id="slides">
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide slide-title active">
+    <div class="eyebrow">SharePoint Admin Center · May 2026</div>
+    <h1>Migrating Viva Connections<br>Multi-Instance Management<br>from MAC to SPAC</h1>
+    <div class="rule"></div>
+    <div class="subtitle">Leadership Review</div>
+    <div class="meta">Viva Connections PM · cmedipally@microsoft.com</div>
+  </div>
+
+  <!-- SLIDE 2: PROBLEM -->
+  <div class="slide slide-light">
+    <div class="eyebrow">The Problem</div>
+    <h2>Admin controls live in the wrong place</h2>
+    <div class="rule"></div>
+    <div class="two-col">
+      <div class="col">
+        <div class="section-label">Today</div>
+        <ul class="bullets">
+          <li>Multi-instance Viva Connections management lives in the <strong>legacy Viva blade in M365 Admin Center (MAC)</strong>.</li>
+          <li>Admins expect to manage SharePoint properties in <strong>SharePoint Admin Center (SPAC)</strong> — that's where Home Sites already live for single-instance tenants.</li>
+          <li>The split creates friction and confusion, especially as single-instance and multi-instance flows diverge.</li>
+          <li>MAC also surfaces deprecated controls — Draft/Enabled status and License Type filtering — that are no longer meaningful.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="section-label">The Ask</div>
+        <ul class="bullets">
+          <li>Move all multi-instance management to SPAC.</li>
+          <li>Deprecate legacy controls that add noise without value.</li>
+          <li>Establish SPAC as the single, authoritative place for Home Site administration.</li>
+        </ul>
+        <div class="section-label" style="margin-top:24px;">Why Now</div>
+        <ul class="bullets">
+          <li>Lightweight VC instances are being retired — all experiences become full Home Sites.</li>
+          <li>This creates a natural forcing function to consolidate admin controls in SPAC.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: SCALE -->
+  <div class="slide slide-dark">
+    <div class="eyebrow">Scale</div>
+    <h2>Who this affects</h2>
+    <div class="rule"></div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-number">~700</div>
+        <div class="stat-label">Tenants currently using<br>multi-instance VC</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~330K</div>
+        <div class="stat-label">MAU from<br>multi-instance tenants</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~200K</div>
+        <div class="stat-label">Total VC tenants<br>(all up)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~24.5M</div>
+        <div class="stat-label">Total VC MAU<br>(all up)</div>
+      </div>
+    </div>
+    <div class="body-text" style="margin-top:28px;opacity:0.75;font-size:13px;">
+      Data as of Oct 2025 · Links to admin usage and VC telemetry dashboards TBD
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WHAT WE'RE DOING -->
+  <div class="slide slide-accent">
+    <div class="eyebrow">The Plan</div>
+    <h2>Three workstreams</h2>
+    <div class="rule"></div>
+    <div class="bucket-row">
+      <div class="bucket bucket-enable">
+        <div class="bucket-title">✅ Enable in SPAC</div>
+        <ul>
+          <li>Create multiple Home Sites from scratch or from an existing communication site</li>
+          <li>Audience targeting per instance (Azure AD security groups / M365 Groups)</li>
+          <li>Priority / fallback order across instances (Change Order)</li>
+          <li>Logo display control per instance</li>
+          <li>Port existing MAC configurations to SPAC — no admin action required</li>
+        </ul>
+      </div>
+      <div class="bucket bucket-remove">
+        <div class="bucket-title">🔁 Remove from MAC</div>
+        <ul>
+          <li>Remove multi-instance creation and management from the Viva blade in MAC once SPAC reaches parity</li>
+          <li>Replace with a redirect callout pointing admins to SPAC</li>
+          <li>Install and Pin in Teams remain in MAC (out of scope)</li>
+        </ul>
+      </div>
+      <div class="bucket bucket-deprecate">
+        <div class="bucket-title">🗑 Deprecate</div>
+        <ul>
+          <li>Lightweight VC instances — all upgraded to full Home Sites automatically, no admin action</li>
+          <li>Draft / Enabled status toggle — removed; all Home Sites are active by default</li>
+          <li>License Type filtering — not carried forward to SPAC</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: REQUIREMENTS -->
+  <div class="slide slide-light">
+    <div class="eyebrow">Requirements</div>
+    <h2>What we're building (P0)</h2>
+    <div class="rule"></div>
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">ID</th>
+          <th style="width:160px;">Capability</th>
+          <th>What it does</th>
+          <th style="width:60px;">Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>R4a</td><td>Create new Home Site</td><td>Admin creates a new Home Site from scratch using the Home site template</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R4b</td><td>Use existing site</td><td>Admin designates an existing communication site as a Home Site</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R5</td><td>Audience targeting</td><td>Assign Azure AD security groups or M365 Groups to each Home Site; default is no audience (no one sees it until set)</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R6</td><td>Remove Home Site</td><td>Remove one or more Home Sites; priority order for remaining sites is preserved</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R7</td><td>Change Order</td><td>Set priority/fallback order; highest-priority match per user becomes their default VC experience</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R8</td><td>Port existing config</td><td>Existing Home Sites, audiences, and priority order appear in SPAC on day one — no re-entry needed</td><td><span class="badge badge-p0">P0</span></td></tr>
+        <tr><td>R9</td><td>MAC redirect</td><td>Multi-instance removed from MAC; callout redirects admins to SPAC</td><td><span class="badge badge-p1">P1</span></td></tr>
+        <tr><td>R2b</td><td>Logo display control</td><td>Toggle to show/hide logo per Home Site after LW → FW upgrade</td><td><span class="badge badge-p2">P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLIDE 6: DEPRECATIONS -->
+  <div class="slide slide-light">
+    <div class="eyebrow">Deprecations</div>
+    <h2>What we're removing</h2>
+    <div class="rule"></div>
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">ID</th>
+          <th style="width:200px;">What</th>
+          <th>Behavior</th>
+          <th style="width:160px;">Note</th>
+          <th style="width:60px;">Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R1a</td>
+          <td>Draft / Enabled status</td>
+          <td>Toggle removed. All new Home Sites are active by default. Visibility controlled by audience assignment, not status.</td>
+          <td>Notify admins in MAC banner before removal</td>
+          <td><span class="badge badge-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>R1b</td>
+          <td>License Type filtering</td>
+          <td>Everyone / Frontline / Information Worker filtering not carried to SPAC.</td>
+          <td>No usage events logged today — engineering deep dive needed to assess impact</td>
+          <td><span class="badge badge-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>R2a</td>
+          <td>Lightweight VC instances</td>
+          <td>All LW instances automatically upgraded to full Home Sites. MAC creation path removed. No admin action required.</td>
+          <td>Upgrade may surface logos unexpectedly — must ship with R2b logo control</td>
+          <td><span class="badge badge-p0">P0</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="body-text" style="margin-top:16px;font-size:12.5px;color:#605e5c;">
+      ⚠ R2a and R2b must ship together — upgrading LW→FW without logo control risks unexpected logo display changes for end users.
+    </div>
+  </div>
+
+  <!-- SLIDE 7: TIMELINE -->
+  <div class="slide slide-accent">
+    <div class="eyebrow">Timeline</div>
+    <h2>Key milestones</h2>
+    <div class="rule"></div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-date">May 18</div>
+        <div class="tl-label">Admin notifications live in MAC</div>
+        <div class="tl-sub">Banner informs admins of upcoming deprecations and SPAC migration</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-date">Jun 15</div>
+        <div class="tl-label">Design ready</div>
+        <div class="tl-sub">SPAC multi-instance management UX finalized</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">3</div>
+        <div class="tl-date">Jul 31</div>
+        <div class="tl-label">Code complete</div>
+        <div class="tl-sub">All P0 requirements implemented and tested</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">4</div>
+        <div class="tl-date">Aug 3</div>
+        <div class="tl-label">Internal rollout</div>
+        <div class="tl-sub">Ring 0 / internal tenant validation</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">5</div>
+        <div class="tl-date">Aug 17 – Sep 11</div>
+        <div class="tl-label">General Availability</div>
+        <div class="tl-sub">Gradual global rollout across all tenants</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: RISKS & DECISIONS -->
+  <div class="slide slide-light">
+    <div class="eyebrow">Risks &amp; Open Decisions</div>
+    <h2>What needs attention</h2>
+    <div class="rule"></div>
+    <div class="risk-row risk-high">
+      <div class="risk-icon">🔴</div>
+      <div>
+        <div class="risk-title">R2a + R2b must ship together</div>
+        <div class="risk-desc">Upgrading LW instances to full Home Sites automatically surfaces logos for end users. Without logo display control (R2b), admins cannot prevent unexpected visual changes. These two must be coordinated.</div>
+      </div>
+    </div>
+    <div class="risk-row risk-high">
+      <div class="risk-icon">🔴</div>
+      <div>
+        <div class="risk-title">License Type filtering — no usage signal</div>
+        <div class="risk-desc">No telemetry events are currently logged for License Type filtering (R1b). Engineering needs a deep dive to quantify usage and assess deprecation impact before we commit.</div>
+      </div>
+    </div>
+    <div class="risk-row risk-med">
+      <div class="risk-icon">🟡</div>
+      <div>
+        <div class="risk-title">MAC removal timing</div>
+        <div class="risk-desc">MAC multi-instance controls must not be removed until SPAC is at parity and admins have had sufficient notification time. Admin banner in MAC must go live by May 18 regardless of other timelines.</div>
+      </div>
+    </div>
+    <div class="risk-row risk-low">
+      <div class="risk-icon">🟢</div>
+      <div>
+        <div class="risk-title">R2b (logo control) can be a fast follow</div>
+        <div class="risk-desc">If R2a ships first, logo display behavior change may not be significant enough to block. Can be validated with early ring feedback and shipped as a fast follow if needed.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slide-counter');
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  counter.textContent = (current + 1) + ' / ' + slides.length;
+}
+function next() { show(current + 1); }
+function prev() { show(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+});
+</script>
+</body>
+</html>
